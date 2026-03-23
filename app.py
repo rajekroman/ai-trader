@@ -393,9 +393,7 @@ with st.sidebar:
     auto_uth    = st.toggle("Auto-optimalizace prahu", value=True)
     man_uth     = st.slider("Rucni prah", 0.50, 0.70, 0.55, 0.01)
     st.markdown("---")
-    st.caption("Model: RF + HistGB VotingClassifier
-20 technickych indikatoru
-Data: Yahoo Finance")
+    st.caption("Model: RF + HistGB VotingClassifier | 20 indikatoru | Yahoo Finance")
 
 tc = tc_bps / 10000
 
