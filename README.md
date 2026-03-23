@@ -1,36 +1,31 @@
-# 📈 AI Trading Screener
+# 📈 AI Trading Screener v2
 
-Kompletní Streamlit aplikace s natrénovaným AI modelem (LogisticRegression)
-pro 5 instrumentů: SPY, Gold, Silver, ETH, SOL.
+**Ziva data z Yahoo Finance + RandomForest (300 stromu, 12 featur)**
 
-## 📁 Soubory
-| Soubor | Popis |
-|--------|-------|
-| app.py | Hlavní Streamlit aplikace |
-| model_*.pkl | Natrénované ML modely (1 per instrument) |
-| scaler_*.pkl | Normalizační scalery |
-| raw_*.csv | Trénovací data (záložní) |
-| backtest_*.csv | Backtestové equity křivky |
-| all_results.json | Souhrn výsledků |
-
-## 🚀 Spuštění
+## Spusteni
 ```bash
-# 1. Nainstaluj závislosti
 pip install -r requirements.txt
-
-# 2. Zkopíruj VŠECHNY .pkl a .csv soubory do stejné složky jako app.py
-
-# 3. Spusť
 streamlit run app.py
 ```
 
-## ⚙️ Jak model funguje
-- **Model:** LogisticRegression (scikit-learn)  
-- **Featury:** 1/5/20-denní výnosy, MA5/MA20, volatilita, změna objemu  
-- **Target:** 1 = cena příští den vzroste, 0 = klesne  
-- **Signál:** LONG pokud p(↑) ≥ práh, SHORT pokud p(↑) ≤ (1 − práh), jinak FLAT  
-- **Práh:** nastavitelný v Streamlit UI (default 0.52)
+## Featury modelu
+| Featura | Popis |
+|---------|-------|
+| r1/r5/r20 | 1/5/20-denni vynosy |
+| ma5/ma20 | Klouzave prumery |
+| v5/v20 | Kратkodobá / strednedoba volatilita |
+| vc | Zmena objemu |
+| rsi | RSI (14) normalizovany |
+| bb_pos | Pozice v Bollingerových pasmech |
+| macd_diff | MACD – Signal |
+| atr_ratio | ATR / Close (normalizovana volatilita) |
 
-## ⚠️ Upozornění
-Modely jsou natrénované na syntetických datech (GBM simulace).
-Aplikace slouží POUZE k demonstraci – není finančním poradenstvím.
+## Instrumenty
+- SPY – S&P 500 ETF
+- GC=F – Zlato
+- SI=F – Stribro
+- ETH-USD – Ethereum
+- SOL-USD – Solana
+
+## Upozorneni
+Pouze demonstrace – neni to financni poradenstvi.
