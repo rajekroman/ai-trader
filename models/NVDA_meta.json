@@ -1,10 +1,10 @@
 {
   "ticker": "NVDA",
-  "trained": "2026-03-23T08:25:55.574320",
+  "trained": "2026-03-23T09:01:01.385917",
   "period": "5y",
   "n_rows": 1056,
-  "auc_val": 0.4333,
-  "auc_test": 0.5425,
+  "auc_val": 0.4098,
+  "auc_test": 0.5477,
   "uth": 0.5,
   "fcols": [
     "r1",

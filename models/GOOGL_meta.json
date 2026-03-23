@@ -1,11 +1,11 @@
 {
   "ticker": "GOOGL",
-  "trained": "2026-03-23T08:26:15.802699",
+  "trained": "2026-03-23T09:01:20.920408",
   "period": "5y",
   "n_rows": 1057,
-  "auc_val": 0.5142,
-  "auc_test": 0.5468,
-  "uth": 0.52,
+  "auc_val": 0.5039,
+  "auc_test": 0.5426,
+  "uth": 0.51,
   "fcols": [
     "r1",
     "r2",

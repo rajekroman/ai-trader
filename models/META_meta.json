@@ -1,10 +1,10 @@
 {
   "ticker": "META",
-  "trained": "2026-03-23T08:26:10.821358",
+  "trained": "2026-03-23T09:01:16.050961",
   "period": "5y",
   "n_rows": 1050,
-  "auc_val": 0.5712,
-  "auc_test": 0.5216,
+  "auc_val": 0.5392,
+  "auc_test": 0.516,
   "uth": 0.51,
   "fcols": [
     "r1",
