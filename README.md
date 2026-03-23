@@ -1,31 +1,29 @@
-# 📈 AI Trading Screener v2
+# AI Trader v6 - iphone postup (bez terminalu)
 
-**Ziva data z Yahoo Finance + RandomForest (300 stromu, 12 featur)**
+## Krok 1: Nahraj soubory na GitHub (pres mobil)
 
-## Spusteni
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
+1. Otevri github.com -> prihlaseni -> tvuj repozitar ai-trader
+2. Klikni "Add file" -> "Upload files"
+3. Nahraj VSECHNY soubory z tohoto ZIPu:
+   - app.py
+   - train.py
+   - requirements.txt
+   - .github/workflows/train_models.yml
+   - models/.gitkeep
+4. Klikni "Commit changes"
 
-## Featury modelu
-| Featura | Popis |
-|---------|-------|
-| r1/r5/r20 | 1/5/20-denni vynosy |
-| ma5/ma20 | Klouzave prumery |
-| v5/v20 | Kратkodobá / strednedoba volatilita |
-| vc | Zmena objemu |
-| rsi | RSI (14) normalizovany |
-| bb_pos | Pozice v Bollingerových pasmech |
-| macd_diff | MACD – Signal |
-| atr_ratio | ATR / Close (normalizovana volatilita) |
+## Krok 2: GitHub automaticky spusti trenink
 
-## Instrumenty
-- SPY – S&P 500 ETF
-- GC=F – Zlato
-- SI=F – Stribro
-- ETH-USD – Ethereum
-- SOL-USD – Solana
+- Po commitu se automaticky spusti GitHub Actions
+- Trenovani trva ~10-15 minut
+- Sleduj progress: repozitar -> zalozka "Actions"
+- Po dokonceni Actions samy nahraji models/*.pkl zpet do repa
 
-## Upozorneni
-Pouze demonstrace – neni to financni poradenstvi.
+## Krok 3: Streamlit Cloud
+
+- Streamlit Cloud detekuje zmeny v repu a znovu nasadi app
+- App nacte predtrenovane modely -> funguje okamzite
+
+## Kdyz chces rucne spustit trenink znovu
+
+GitHub -> Actions -> "Train AI Models" -> "Run workflow" -> zelene tlacitko
