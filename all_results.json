@@ -1,0 +1,42 @@
+{
+  "GOLD": {
+    "upper_th": 0.52,
+    "lower_th": 0.48,
+    "test_cagr": -0.46677075548195723,
+    "test_sharpe": -5.636184727960055,
+    "test_max_dd": -0.20881261062992085,
+    "test_final_equity": 0.8048599098605167
+  },
+  "SILVER": {
+    "upper_th": 0.52,
+    "lower_th": 0.48,
+    "test_cagr": 0.03518741152201654,
+    "test_sharpe": 0.28521448459929566,
+    "test_max_dd": -0.10740595054416036,
+    "test_final_equity": 1.0120107476277813
+  },
+  "ETH": {
+    "upper_th": 0.52,
+    "lower_th": 0.48,
+    "test_cagr": 6.419720708996186,
+    "test_sharpe": 4.5671001547978305,
+    "test_max_dd": -0.12999776742408542,
+    "test_final_equity": 1.889354752928021
+  },
+  "SOL": {
+    "upper_th": 0.52,
+    "lower_th": 0.48,
+    "test_cagr": -0.9619998098797953,
+    "test_sharpe": -4.059399357501125,
+    "test_max_dd": -0.6177371649037009,
+    "test_final_equity": 0.43020445244725014
+  },
+  "SPY": {
+    "upper_th": 0.52,
+    "lower_th": 0.48,
+    "test_cagr": -0.008,
+    "test_sharpe": 0.01,
+    "test_max_dd": -0.096,
+    "test_final_equity": 1.0
+  }
+}
