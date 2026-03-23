@@ -215,6 +215,14 @@ def train_model(ticker, period):
 
 # ── Backtest ─────────────────────────────────────────────────
 def run_backtest(probs, rets, uth, tc=0.0005, sl=None, use_sizing=True):
+    # Zarucit stejnou delku
+    n   = min(len(probs), len(rets))
+    probs = np.array(probs[:n], dtype=float)
+    rets  = np.array(rets[:n],  dtype=float)
+    # Nahradit NaN nulami
+    probs = np.nan_to_num(probs, nan=0.5)
+    rets  = np.nan_to_num(rets,  nan=0.0)
+
     lth = 1 - uth
     pos = np.where(probs >= uth, 1.0, np.where(probs <= lth, -1.0, 0.0))
 
@@ -222,52 +230,53 @@ def run_backtest(probs, rets, uth, tc=0.0005, sl=None, use_sizing=True):
         conf = np.abs(probs - 0.5) * 2
         pos  = pos * np.clip(conf, 0.3, 1.0)
 
-    equity = [1.0]
+    equity  = [1.0]
     trades, wins = [], []
-    in_trade, entry_eq, entry_day = False, 1.0, 0
+    in_trade, entry_eq = False, 1.0
     cur_pos = 0.0
 
-    for i, (p, r) in enumerate(zip(pos, rets)):
-        trade_ret = p * r - abs(p - cur_pos) * tc
-        new_eq    = equity[-1] * (1 + trade_ret)
+    for i in range(n):
+        p = pos[i]
+        r = rets[i]
+        cost      = abs(p - cur_pos) * tc
+        trade_ret = p * r - cost
+        new_eq    = equity[-1] * (1.0 + trade_ret)
 
         if sl is not None and in_trade:
-            dd = new_eq / entry_eq - 1
-            if dd < -sl:
-                new_eq  = entry_eq * (1 - sl)
-                p       = 0.0
+            if new_eq / entry_eq - 1 < -sl:
+                new_eq   = entry_eq * (1.0 - sl)
+                p        = 0.0
                 in_trade = False
 
-        if p != 0 and not in_trade:
-            in_trade  = True
-            entry_eq  = equity[-1]
-            entry_day = i
-        elif p == 0 and in_trade:
-            trade_pnl = new_eq / entry_eq - 1
-            trades.append(trade_pnl)
-            wins.append(trade_pnl > 0)
+        if p != 0.0 and not in_trade:
+            in_trade = True
+            entry_eq = equity[-1]
+        elif p == 0.0 and in_trade:
+            trades.append(new_eq / entry_eq - 1.0)
+            wins.append(new_eq >= entry_eq)
             in_trade = False
 
-        equity.append(max(new_eq, 1e-6))
+        equity.append(max(new_eq, 1e-9))
         cur_pos = p
 
     equity  = np.array(equity[1:])
-    yr      = len(equity) / 252
-    cagr    = float(equity[-1]**(1/yr) - 1) if yr > 0 else 0.0
-    sr_     = pos * rets - abs(np.diff(np.concatenate([[0], pos]))) * tc
-    sh      = float(sr_.mean() / sr_.std() * math.sqrt(252)) if sr_.std() > 0 else 0.0
+    yr      = max(len(equity) / 252, 1e-9)
+    cagr    = float(equity[-1]**(1.0/yr) - 1.0)
+    # Denni vynosy pro Sharpe
+    daily   = np.diff(np.log(np.maximum(equity, 1e-9)))
+    sh      = float(daily.mean() / daily.std() * math.sqrt(252)) if daily.std() > 0 else 0.0
     rm      = np.maximum.accumulate(equity)
-    mdd     = float((equity / rm - 1).min())
+    mdd     = float((equity / rm - 1.0).min())
     win_r   = float(np.mean(wins)) if wins else 0.0
     profits = [t for t in trades if t > 0]
-    losses  = [t for t in trades if t < 0]
-    pf      = abs(sum(profits) / sum(losses)) if losses and sum(losses) != 0 else 999.0
+    losses  = [abs(t) for t in trades if t < 0]
+    pf      = sum(profits) / sum(losses) if losses and sum(losses) > 0 else 999.0
     avg_t   = float(np.mean(trades)) if trades else 0.0
 
     return dict(
         cagr=cagr, sharpe=sh, max_dd=mdd, final_eq=float(equity[-1]),
-        equity=equity, pos=pos, rets=sr_,
-        win_rate=win_r, profit_factor=min(pf, 50.0),
+        equity=equity, pos=pos, rets=pos * rets,
+        win_rate=win_r, profit_factor=min(float(pf), 50.0),
         avg_trade=avg_t, n_trades=len(trades),
     )
 
@@ -564,20 +573,18 @@ elif PAGE == "Detail & Backtest":
     rsi_s   = str(round(float(feat["rsi"].iloc[-1]*100), 1))
     adx_s   = str(round(float(feat["adx"].iloc[-1]*100), 1))
 
-    st.markdown(
+    signal_html = (
         "<div style='padding:1.2rem;border-radius:10px;background:#1e1e2e;"
         "border-left:7px solid " + color + ";margin-top:1rem;'>"
-        "<span style='font-size:1.6rem;font-weight:bold;'>" + icon + " " + lbl + "</span><br><br>"
-        "<table style='color:#fff;width:100%;'>"
-        "<tr><td>Pravdepodobnost rustu</td><td><b>" + str(round(p_now*100,1)) + "%</b></td>"
-        "<td>Posledni cena</td><td><b>" + close_s + "</b></td></tr>"
-        "<tr><td>Datum signalu</td><td><b>" + date_s + "</b></td>"
-        "<td>RSI (14)</td><td><b>" + rsi_s + "</b></td></tr>"
-        "<tr><td>ADX</td><td><b>" + adx_s + "</b></td>"
-        "<td>Optimalizovany prah</td><td><b>" + str(uth_) + "</b></td></tr>"
-        "</table></div>",
-        unsafe_allow_html=True,
+        "<b style='font-size:1.4rem;'>" + icon + " " + lbl + "</b><br><br>"
+        "<b>Pravdepodobnost rustu:</b> " + str(round(p_now*100,1)) + "%<br>"
+        "<b>Posledni cena:</b> " + close_s + "<br>"
+        "<b>Datum signalu:</b> " + date_s + "<br>"
+        "<b>RSI (14):</b> " + rsi_s + "<br>"
+        "<b>ADX:</b> " + adx_s + "<br>"
+        "<b>Prah:</b> " + str(uth_) + "</div>"
     )
+    st.markdown(signal_html, unsafe_allow_html=True)
 
     # Export
     pos_full = np.where(probs >= uth_, 1, np.where(probs <= 1-uth_, -1, 0))
@@ -636,7 +643,7 @@ elif PAGE == "Portfolio Simulace":
 
     combined = pd.concat(eq_curves.values(), axis=1)
     combined.columns = list(eq_curves.keys())
-    combined = combined.fillna(method="ffill").dropna()
+    combined = combined.ffill().dropna()
     portfolio = combined.sum(axis=1)
 
     fig_p = go.Figure()
