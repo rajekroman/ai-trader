@@ -1,1 +1,42 @@
+name: Train AI Models
 
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'models/**'
+  workflow_dispatch:        # tlacitko "Run workflow" v GitHub UI
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write       # potrebujeme zapsat modely zpet do repa
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install yfinance scikit-learn pandas numpy joblib
+
+      - name: Train models
+        run: python train.py
+
+      - name: Commit trained models
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add models/
+          git diff --cached --quiet || git commit -m "chore: update trained models [skip ci]"
+          git push
